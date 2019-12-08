@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/loveencounterflow/intershop-rpc/issues"
   },
-  "homepage": "https://github.com/loveencounterflow/intershop-rpc#readme"
+  "homepage": "https://github.com/loveencounterflow/intershop-rpc#readme",
+  "dependencies": {
+    "cnd": "^4.7.3",
+    "datom": "^2.3.1",
+    "multimix": "^2.1.1",
+    "steampipes": "^3.2.0"
+  }
 }
