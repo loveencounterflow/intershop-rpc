@@ -1,0 +1,9 @@
+{
+	"targets": {
+		"ipc.sql":                          			"rebuild",
+		"intershop-rpc-server-secondary.js":			"app",
+		"intershop-rpc-server-secondary.coffee":	"ignore",
+		"ipc.py":                               	"import"
+	}
+}
+

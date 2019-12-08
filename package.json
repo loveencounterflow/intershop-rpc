@@ -1,0 +1,23 @@
+{
+  "name": "intershop-rpc",
+  "version": "1.0.0",
+  "description": "An RPC server for InterShop and NodeJS: Call JavaScript methods from PostgreSQL functions",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loveencounterflow/intershop-rpc.git"
+  },
+  "keywords": [
+    "intershop",
+    "rpc"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/loveencounterflow/intershop-rpc/issues"
+  },
+  "homepage": "https://github.com/loveencounterflow/intershop-rpc#readme"
+}
