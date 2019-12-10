@@ -2,7 +2,7 @@
   "name": "intershop-rpc",
   "version": "0.0.2",
   "description": "An RPC server for InterShop and NodeJS: Call JavaScript methods from PostgreSQL functions",
-  "main": "main.js",
+  "main": "lib/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +22,8 @@
   "homepage": "https://github.com/loveencounterflow/intershop-rpc#readme",
   "dependencies": {
     "cnd": "^4.7.3",
-    "datom": "^2.3.1",
+    "datom": "^2.4.0",
+    "intertype": "^2.7.0",
     "multimix": "^2.1.1",
     "steampipes": "^3.2.0"
   }
