@@ -1,6 +1,7 @@
 {
+  "intershop-package-version": "1.0.0",
 	"targets": {
-		"ipc.sql":                          			"rebuild",
+		"ipc.sql":                          			"redo",
 		"intershop-rpc-server-secondary.js":			"app",
 		"intershop-rpc-server-secondary.coffee":	"ignore",
 		"ipc.py":                               	"import"
