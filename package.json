@@ -23,7 +23,7 @@
   "dependencies": {
     "cnd": "^4.7.3",
     "datom": "^2.4.0",
-    "intertype": "^2.7.0",
+    "intertype": "^2.8.0",
     "multimix": "^2.1.1",
     "steampipes": "^3.2.0"
   }
