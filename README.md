@@ -23,7 +23,8 @@
     may be left out
   * `"app"`—intended for the InterShop host application; as far as InterShop is concerned, equivalent to
     `"ignore"`
-  * `"import"`—will be imported by the InterShop `plpython3u` subsystem
+  * `"support"`—will be imported by the InterShop `plpython3u` subsystem ('support' meaning 'supporting
+    plPython3u library')
   * `"rebuild"`—to be executed when the DB is rebuilt from scratch with the `intershop rebuild` command
 <!--   * `"redo"`—to be executed when part of the DB is redone with the `intershop redo` command (pending
     official implementation of this feature) -->
@@ -39,7 +40,7 @@ Example:
     "ipc.sql":                                "rebuild",
     "intershop-rpc-server-secondary.js":      "app",
     "intershop-rpc-server-secondary.coffee":  "ignore",
-    "ipc.py":                                 "import"
+    "ipc.py":                                 "support"
   }
 }
 ```
