@@ -1,6 +1,6 @@
 {
   "name": "intershop-rpc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An RPC server for InterShop and NodeJS: Call JavaScript methods from PostgreSQL functions",
   "main": "lib/main.js",
   "scripts": {
