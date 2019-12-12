@@ -28,7 +28,7 @@
   * `"rebuild"`—to be executed when the DB is rebuilt from scratch with the `intershop rebuild` command
 <!--   * `"redo"`—to be executed when part of the DB is redone with the `intershop redo` command (pending
     official implementation of this feature) -->
-* or a list with a number of choices; currently only `["rebuild","redo"]` (in either order) is allowed
+<!-- * or a list with a number of choices; currently only `["rebuild","redo"]` (in either order) is allowed -->
 * `intershop-package.json` files that do not meet the above criteria will cause an error
 
 Example:
@@ -36,7 +36,7 @@ Example:
 ```json
 {
   "intershop-package-version": "1.0.0",
-  "targets": {
+  "files": {
     "ipc.sql":                                "rebuild",
     "intershop-rpc-server-secondary.js":      "app",
     "intershop-rpc-server-secondary.coffee":  "ignore",

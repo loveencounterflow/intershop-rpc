@@ -1,6 +1,6 @@
 {
   "intershop-package-version": "1.0.0",
-  "targets": {
+  "files": {
     "ipc.sql":            "rebuild",
     "lib/main.js":        "app",
     "src/main.coffee":    "ignore",
