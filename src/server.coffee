@@ -68,10 +68,9 @@ DATOM                     = require 'datom'
   return R
 
 #-----------------------------------------------------------------------------------------------------------
-@listen = ( me ) -> new Promise ( resolve, reject ) =>
+@start = ( me ) -> new Promise ( resolve, reject ) =>
   #.........................................................................................................
   ### TAINT setting these as constants FTTB ###
-  debug '^7776-1^'
   host = 'localhost'
   me.server.socketserver.listen me.port, host, =>
     { address: host, port, family, } = me.server.socketserver.address()
@@ -79,6 +78,12 @@ DATOM                     = require 'datom'
     help "RPC server for #{app_name} listening on #{family} #{host}:#{port}"
     resolve null
   return null
+
+#-----------------------------------------------------------------------------------------------------------
+@stop = ( me ) -> new Promise ( resolve, reject ) =>
+  me.server.socketserver.close ( error ) =>
+    return reject error if error?
+    resolve null
 
 #-----------------------------------------------------------------------------------------------------------
 @$show_counts = ( me ) -> $watch ( event ) ->
@@ -119,17 +124,9 @@ DATOM                     = require 'datom'
         when 'error'
           @send_error me, parameters
         #...................................................................................................
-        ### Send `stop` signal to primary and exit secondary: ###
         when 'stop'
-          process.send 'stop' if process_is_managed
+          process.send 'stop'
           process.exit()
-        #...................................................................................................
-        ### exit and have primary restart secondary: ###
-        when 'restart'
-          unless process_is_managed
-            warn "received restart signal but standalone process can't restart"
-          else
-            process.exit()
         #...................................................................................................
         else
           if $rsvp is true

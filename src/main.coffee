@@ -39,7 +39,6 @@ DATOM                     = require 'datom'
 { jr }                    = CND
 Multimix                  = require 'multimix'
 SERVER                    = require './server'
-require 'cnd/lib/exception-handler'
 
 
 #===========================================================================================================
@@ -47,7 +46,7 @@ require 'cnd/lib/exception-handler'
 #-----------------------------------------------------------------------------------------------------------
 MAIN = @
 class Rpc extends Multimix
-  @include MAIN,                              { overwrite: false, }
+  @include MAIN, { overwrite: false, }
   # @include ( require './outliner.mixin' ),    { overwrite: false, }
   # @extend MAIN, { overwrite: false, }
 
@@ -61,9 +60,8 @@ class Rpc extends Multimix
     return @
 
   #---------------------------------------------------------------------------------------------------------
-  start: ->
-    await SERVER.listen @
-    return null
+  start:  -> await SERVER.start @
+  stop:   -> await SERVER.stop  @
 
   #---------------------------------------------------------------------------------------------------------
   contract:           ( P... ) -> @server.xemitter.contract           P...
