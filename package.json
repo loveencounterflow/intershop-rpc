@@ -21,10 +21,10 @@
   },
   "homepage": "https://github.com/loveencounterflow/intershop-rpc#readme",
   "dependencies": {
-    "cnd": "^4.7.3",
-    "datom": "^2.4.0",
-    "intertype": "^2.8.0",
-    "multimix": "^2.1.1",
-    "steampipes": "^3.2.0"
+    "cnd": "^5.3.1",
+    "datom": "^5.0.0",
+    "intertype": "^3.4.0",
+    "multimix": "^2.2.0",
+    "steampipes": "^6.1.1"
   }
 }
