@@ -13,15 +13,17 @@ A NodeJS RPC server for [InterShop](https://github.com/loveencounterflow/intersh
 # To Do
 
 * [ ] Documentation.
-* transition from old implementation in InterShop:
-	* check code completeness
-	* remove prv
-	* rewrite code that uses prev model
-	* reflect on how to deal w/ `log()` functionality
-	* cleanup code, esp. wrt. implicit meta-methods in `$do_rpc()`
-	* rename/rewrite methods to adapt to XEmitter API conventions, i.e. use `listen_to()`, `contract()` and
-		`emit()`, `delegate()` etc;
-	* should provide a (partial) implementation of [Datom](https://github.com/loveencounterflow/datom)
-		(ex. a SQL method `new_datom()` should look similar to `datom.new_datom()`, result in JsonB)
-	* equivalent to Datom's `select()` should use Postgres 12's new JSON Path functionality
+* [ ] transition from old implementation in InterShop:
+	* [x] check code completeness
+	* [x] remove prv
+	* [ ] rewrite code that uses prev model
+	* [ ] reflect on how to deal w/ `log()` functionality
+	* [ ] cleanup code, esp. wrt. implicit meta-methods in `$do_rpc()`
+	* [ ] rename/rewrite methods to adapt to XEmitter API conventions, i.e. use `listen_to()`, `contract()`
+	  and `emit()`, `delegate()` etc;
+	* [ ] should provide a (partial) implementation of [Datom](https://github.com/loveencounterflow/datom)
+	  (ex. a SQL method `new_datom()` should look similar to `datom.new_datom()`, result in JsonB)
+	* [ ] equivalent to Datom's `select()` should use Postgres 12's new JSON Path functionality
+
+
 
