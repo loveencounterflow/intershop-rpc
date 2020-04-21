@@ -70,6 +70,8 @@ DATOM                     = require 'datom'
 #-----------------------------------------------------------------------------------------------------------
 @start = ( me ) -> new Promise ( resolve, reject ) =>
   #.........................................................................................................
+  process.on 'uncaughtException',  => await @stop me; process.exitCode = 1
+  process.on 'unhandledRejection', => await @stop me; process.exitCode = 1
   ### TAINT setting these as constants FTTB ###
   host = 'localhost'
   me.server.socketserver.listen me.port, host, =>
