@@ -24,6 +24,11 @@ transaction.
 drop schema if exists IPC cascade;
 create schema IPC;
 
+-- ---------------------------------------------------------------------------------------------------------
+set role dba;
+create extension if not exists plpython3u with schema pg_catalog;
+reset role;
+
 -- current_database()
 -- select current_setting('application_name');
 
