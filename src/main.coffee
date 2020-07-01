@@ -71,6 +71,12 @@ class Rpc extends Multimix
     return @
 
   #---------------------------------------------------------------------------------------------------------
+  @create: ( settings ) ->
+    R = new @ settings
+    await R.start()
+    return R
+
+  #---------------------------------------------------------------------------------------------------------
   _create_socketserver: -> return NET.createServer ( socket ) =>
     @_socket          = socket
     socket.on 'data',   ( data  ) => source.send data unless data is ''
