@@ -39,7 +39,6 @@ DATOM                     = require 'datom'
 #...........................................................................................................
 jr                        = JSON.stringify
 Multimix                  = require 'multimix'
-SERVER                    = require './server'
 #...........................................................................................................
 _defaults                 = freeze
   host:                     'localhost'
@@ -64,29 +63,30 @@ class Rpc extends Multimix
     @settings       = freeze { _defaults..., settings..., }
     @_xemitter      = DATOM.new_xemitter()
     @counts         = { requests: 0, rpcs: 0, hits: 0, fails: 0, errors: 0, }
-    #.......................................................................................................
-    ### TAINT put into separate code block ###
-    @_socketserver  = NET.createServer ( socket ) =>
-      @_socket          = socket
-      socket.on 'data',   ( data  ) => source.send data unless data is ''
-      socket.on 'error',  ( error ) => warn "socket error: #{error.message}"
-      source            = SP.new_push_source()
-      pipeline          = []
-      #.....................................................................................................
-      pipeline.push source
-      # pipeline.push $watch ( d ) => urge '^3398^', rpr d.toString()
-      pipeline.push SP.$split()
-      pipeline.push @_$show_counts()
-      pipeline.push @_$dispatch()
-      pipeline.push $drain()
-      #.....................................................................................................
-      SP.pull pipeline...
-      return null
+    @_socketserver  = @_create_socketserver()
     #.......................................................................................................
     @_socket_listen_on_all() if @settings.socket_log_all
     @_server_listen_on_all() if @settings.socketserver_log_all
     #.......................................................................................................
     return @
+
+  #---------------------------------------------------------------------------------------------------------
+  _create_socketserver: -> return NET.createServer ( socket ) =>
+    @_socket          = socket
+    socket.on 'data',   ( data  ) => source.send data unless data is ''
+    socket.on 'error',  ( error ) => warn "socket error: #{error.message}"
+    source            = SP.new_push_source()
+    pipeline          = []
+    #.....................................................................................................
+    pipeline.push source
+    # pipeline.push $watch ( d ) => urge '^3398^', rpr d.toString()
+    pipeline.push SP.$split()
+    pipeline.push @_$show_counts()
+    pipeline.push @_$dispatch()
+    pipeline.push $drain()
+    #.....................................................................................................
+    SP.pull pipeline...
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   start: -> new Promise ( resolve, reject ) =>
