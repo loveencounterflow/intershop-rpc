@@ -40,13 +40,16 @@ DATOM                     = require 'datom'
 
 
 #-----------------------------------------------------------------------------------------------------------
-@new_server = ( me ) ->
+@new_server = ( me, settings ) ->
+  defaults    = { socket_log_all: false, socketserver_log_all: false, }
+  settings    = { defaults..., settings..., }
   R           = {}
   R.xemitter  = DATOM.new_xemitter()
   R.stop      = -> R.socketserver.close()
   #.........................................................................................................
   R.socketserver = NET.createServer ( socket ) =>
     R.socket          = socket
+    @_socket_listen_on_all socket if settings.socket_log_all
     R.counts          = { requests: 0, rpcs: 0, hits: 0, fails: 0, errors: 0, }
     R.show_counts     = false
     R.count_interval  = 1000
@@ -65,6 +68,7 @@ DATOM                     = require 'datom'
     SP.pull pipeline...
     return null
   #.........................................................................................................
+  @_server_listen_on_all R.socketserver if settings.socketserver_log_all
   return R
 
 #-----------------------------------------------------------------------------------------------------------
@@ -73,7 +77,8 @@ DATOM                     = require 'datom'
   process.on 'uncaughtException',  => await @stop me; process.exitCode = 1
   process.on 'unhandledRejection', => await @stop me; process.exitCode = 1
   ### TAINT setting these as constants FTTB ###
-  host = 'localhost'
+  # host = 'localhost'
+  host = '127.0.0.1'
   me.server.socketserver.listen me.port, host, =>
     { address: host, port, family, } = me.server.socketserver.address()
     app_name = process.env[ 'intershop_db_name' ] ? 'intershop'
@@ -104,35 +109,34 @@ DATOM                     = require 'datom'
     $rsvp       = false
     #.......................................................................................................
     loop
+      ### TAINt first parse format to be prepended, as in e.g. `json:{}` ###
       try event = JSON.parse line catch error
-        @send_error me, """^rpc-secondary/$dispatch@5564^
+        @send_error me, """^rpc-secondary/$dispatch@1357^
           An error occurred while trying to parse #{rpr line}:
           #{error.message}"""
         break
       #.....................................................................................................
       switch type = type_of event
-        # when 'list'
-        #   warn "^rpc-secondary/$dispatch@5564^ using list instead of object in RPC calls is deprecated"
-        #   [ method, parameters, ] = event
-        #   $rsvp                   = true
         when 'object'
-          { $key: method, $value: parameters, $rsvp, }  = event
-          $rsvp                                        ?= false
+          method_name = event.$key
+          parameters  = event.$value
+          $rsvp       = event.$rsvp ? false
         else
-          @send_error me, "^rpc-secondary/$dispatch@5565^ expected object, got a #{type}: #{rpr event}"
+          @send_error me, "^rpc-secondary/$dispatch@1359^ expected object, got a #{type}: #{rpr event}"
           break
       #.....................................................................................................
-      switch method
+      switch method_name
         when 'error'
           @send_error me, parameters
         #...................................................................................................
         when 'stop'
-          process.send 'stop'
+          ### TAINT really exit process? ###
           process.exit()
         #...................................................................................................
         else
           if $rsvp is true
-            @do_rpc me, method, parameters
+            ### TAINT `@do_rpc() is async ###
+            @do_rpc me, method_name, parameters
       #.....................................................................................................
       break
     #.......................................................................................................
@@ -143,23 +147,7 @@ DATOM                     = require 'datom'
 #-----------------------------------------------------------------------------------------------------------
 @do_rpc = ( me, method_name, parameters ) ->
   me.server.counts.rpcs  += +1
-  method          = @[ "rpc_#{method_name}" ]
-  method_type     = type_of method
-  return @send_error me, "no such method: #{rpr method_name}" unless method?
-  #.........................................................................................................
-  try
-    switch method_type
-      when 'function'       then  result =        method.call @, parameters
-      when 'asyncfunction'  then  result = await  method.call @, parameters
-      else throw new Error "unknown method type #{rpr method_type}"
-  catch error
-    me.server.counts.errors += +1
-    try
-      { message, } = error
-    catch error_2
-      null
-    message ?= '(UNKNOWN ERROR MESSAGE)'
-    return @send_error me, error.message
+  help '^intershop-rpc/server/do_rpc@5567^', result = await me.delegate method_name, parameters
   if isa.promise result
     result.then ( result ) => @_write me, method_name, result
   else
@@ -172,7 +160,7 @@ DATOM                     = require 'datom'
 
 #-----------------------------------------------------------------------------------------------------------
 @_write = ( me, $method, parameters ) ->
-  # debug '^intershop-rpc-server-secondary.coffee@3332^', ( rpr method_name ), ( rpr parameters )
+  # debug '^intershop-rpc-server-secondary.coffee@1362^', ( rpr method_name ), ( rpr parameters )
   # if isa.object parameters  then  d = new_datom '^rpc-result', { $method, parameters..., }
   # else                            d = new_datom '^rpc-result', { $method, $value: parameters, }
   d = new_datom '^rpc-result', { $method, $value: parameters, }
@@ -180,66 +168,26 @@ DATOM                     = require 'datom'
   return null
 
 
-# #===========================================================================================================
-# # RPC METHODS
-# #-----------------------------------------------------------------------------------------------------------
-# @rpc_has_rpc_method = ( S, P ) ->
-#   ### TAINT don't do ad-hoc name mangling, use dedicated namespace ###
-#   validate.nonempty_text P
-#   return @[ "rpc_#{P}" ]?
+#-----------------------------------------------------------------------------------------------------------
+@_socket_listen_on_all = ( socket ) ->
+  ### TAINT add arguments, timestamp ###
+  socket.on 'close',      ( P... ) -> whisper '^intershop-rpc@4432-1^', 'socket:close'                    # , ( rpr P )[ .. 100 ]
+  socket.on 'connect',    ( P... ) -> whisper '^intershop-rpc@4432-2^', 'socket:connect'                  # , ( rpr P )[ .. 100 ]
+  socket.on 'data',       ( P... ) -> whisper '^intershop-rpc@4432-3^', 'socket:data'                     # , ( rpr P )[ .. 100 ]
+  socket.on 'drain',      ( P... ) -> whisper '^intershop-rpc@4432-4^', 'socket:drain'                    # , ( rpr P )[ .. 100 ]
+  socket.on 'end',        ( P... ) -> whisper '^intershop-rpc@4432-5^', 'socket:end'                      # , ( rpr P )[ .. 100 ]
+  socket.on 'error',      ( P... ) -> whisper '^intershop-rpc@4432-6^', 'socket:error'                    # , ( rpr P )[ .. 100 ]
+  socket.on 'lookup',     ( P... ) -> whisper '^intershop-rpc@4432-7^', 'socket:lookup'                   # , ( rpr P )[ .. 100 ]
+  socket.on 'timeout',    ( P... ) -> whisper '^intershop-rpc@4432-8^', 'socket:timeout'                  # , ( rpr P )[ .. 100 ]
+  return null
 
-# @rpc_echo_all_events = ( S ) ->
-#   @_socket_listen_on_all socket
-#   @_server_listen_on_all server
-
-# #-----------------------------------------------------------------------------------------------------------
-# @_socket_listen_on_all = ( socket ) ->
-#   socket.on 'close',      -> whisper '^rpc-4432-1^', 'socket', 'close'
-#   socket.on 'connect',    -> whisper '^rpc-4432-2^', 'socket', 'connect'
-#   socket.on 'data',       -> whisper '^rpc-4432-3^', 'socket', 'data'
-#   socket.on 'drain',      -> whisper '^rpc-4432-4^', 'socket', 'drain'
-#   socket.on 'end',        -> whisper '^rpc-4432-5^', 'socket', 'end'
-#   socket.on 'error',      -> whisper '^rpc-4432-6^', 'socket', 'error'
-#   socket.on 'lookup',     -> whisper '^rpc-4432-7^', 'socket', 'lookup'
-#   socket.on 'timeout',    -> whisper '^rpc-4432-8^', 'socket', 'timeout'
-#   return null
-
-# #-----------------------------------------------------------------------------------------------------------
-# @_server_listen_on_all = ( server ) ->
-#   server.on 'close',      -> whisper '^rpc-4432-9^', 'server', 'close'
-#   server.on 'connection', -> whisper '^rpc-4432-10^', 'server', 'connection'
-#   server.on 'error',      -> whisper '^rpc-4432-11^', 'server', 'error'
-#   server.on 'listening',  -> whisper '^rpc-4432-12^', 'server', 'listening'
-#   return null
-
-# @rpc_echo_counts = ( n ) ->
-
-# #-----------------------------------------------------------------------------------------------------------
-# @rpc_helo = ( S, P ) ->
-#   return "helo #{rpr P}"
-
-# #-----------------------------------------------------------------------------------------------------------
-# @rpc_add = ( S, P ) ->
-#   unless ( CND.isa_list P ) and ( P.length is 2 )
-#     throw new Error "expected a list with two numbers, got #{rpr P}"
-#   [ a, b, ] = P
-#   unless ( CND.isa_number a ) and ( CND.isa_number b )
-#     throw new Error "expected a list with two numbers, got #{rpr P}"
-#   return a + b
-
-
-
-# ############################################################################################################
-# if module is require.main then do =>
-#   RPCS = @
-#   RPCS.listen()
-
-
-# # curl --silent --show-error localhost:23001/
-# # curl --silent --show-error localhost:23001
-# # curl --show-error localhost:23001
-# # grep -r --color=always -P '23001' db src bin tex-inputs | sort | less -SRN
-# # grep -r --color=always -P '23001' . | sort | less -SRN
-# # grep -r --color=always -P '23001|8910|rpc' . | sort | less -SRN
+#-----------------------------------------------------------------------------------------------------------
+@_server_listen_on_all = ( socketserver ) ->
+  ### TAINT add arguments, timestamp ###
+  socketserver.on 'close',      ( P... ) -> whisper '^intershop-rpc@4432-9^', 'socketserver:close'        # , ( rpr P )[ .. 100 ]
+  socketserver.on 'connection', ( P... ) -> whisper '^intershop-rpc@4432-10^', 'socketserver:connection'  # , ( rpr P )[ .. 100 ]
+  socketserver.on 'error',      ( P... ) -> whisper '^intershop-rpc@4432-11^', 'socketserver:error'       # , ( rpr P )[ .. 100 ]
+  socketserver.on 'listening',  ( P... ) -> whisper '^intershop-rpc@4432-12^', 'socketserver:listening'   # , ( rpr P )[ .. 100 ]
+  return null
 
 

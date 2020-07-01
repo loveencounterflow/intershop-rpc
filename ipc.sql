@@ -41,7 +41,18 @@ reset role;
 set role dba;
 create function IPC.server_is_online() returns boolean volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
-  return ctx.ipc.server_is_online()
+  # ctx.log( '^22333^', "ctx.addons:", ctx.addons )
+  # for key in ctx:
+  #   ctx.log( '^22333^', "key:", key )
+  # ctx.log( '^22333^', "ctx.intershop_rpc_host:", ctx.intershop_rpc_host )
+  # ctx.log( '^22333^', "ctx.intershop_rpc_port:", ctx.intershop_rpc_port )
+  # import sys
+  # for path in sys.path:
+  #   ctx.log( '^22333^', "path:", path )
+  # # import ipc
+  # # ctx.addons[ 'intershop-rpc' ] = ipc
+  # # return ctx.addons[ 'intershop-rpc' ].server_is_online()
+  return ctx.addons[ 'intershop-rpc' ].server_is_online( ctx )
   $$;
 
 comment on function IPC.server_is_online() is 'Return `true` iff RPC server is reachable, `false`
@@ -50,9 +61,9 @@ otherwise.';
 -- ---------------------------------------------------------------------------------------------------------
 create function IPC.has_rpc_method( key text ) returns boolean volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
-  if not ctx.ipc.server_is_online(): return None
+  if not ctx.addons[ 'intershop-rpc' ].server_is_online( ctx ): return None
   try:
-    return ctx.ipc.rpc( 'has_rpc_method', key )
+    return ctx.addons[ 'intershop-rpc' ].rpc( ctx, 'has_rpc_method', key )
   except ConnectionRefusedError as e:
     return False
   $$;
@@ -73,7 +84,7 @@ create function IPC.send( key text, value jsonb, rsvp boolean )
   returns void volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
   import json
-  ctx.ipc._write_line( json.dumps( { '$key': key, '$value': json.loads( value ), '$rsvp': rsvp, } ) )
+  ctx.addons[ 'intershop-rpc' ]._write_line( ctx, json.dumps( { '$key': key, '$value': json.loads( value ), '$rsvp': rsvp, } ) )
   $$;
 reset role;
 
@@ -88,7 +99,7 @@ set role dba;
 create function IPC.rpc( key text, value jsonb ) returns jsonb volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
   import json
-  return ctx.ipc.rpc( key, json.loads( value ), format = 'json' )
+  return ctx.addons[ 'intershop-rpc' ].rpc( ctx, key, json.loads( value ), format = 'json' )
   $$;
 reset role;
 
