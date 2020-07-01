@@ -72,6 +72,7 @@ class Rpc extends Multimix
 
   #---------------------------------------------------------------------------------------------------------
   @create: ( settings ) ->
+    ### Convenience method to instantiate and start server ###
     R = new @ settings
     await R.start()
     return R
