@@ -80,17 +80,13 @@ reset role;
 
 -- ---------------------------------------------------------------------------------------------------------
 set role dba;
-create function IPC.send( key text, value jsonb, rsvp boolean )
-  returns void volatile language plpython3u as $$
+create function IPC.send( key text, value jsonb ) returns void volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
   import json
-  ctx.addons[ 'intershop-rpc' ]._write_line( ctx, json.dumps( { '$key': key, '$value': json.loads( value ), '$rsvp': rsvp, } ) )
+  ctx.addons[ 'intershop-rpc' ]._write_line( ctx, json.dumps( { '$key': key, '$value': json.loads( value ), } ) )
   $$;
 reset role;
 
--- ---------------------------------------------------------------------------------------------------------
-create function IPC.send( ¶key text, ¶value jsonb ) returns void volatile language sql as $$
-  select IPC.send( ¶key, ¶value, false ); $$;
 
 -- =========================================================================================================
 -- RPC
