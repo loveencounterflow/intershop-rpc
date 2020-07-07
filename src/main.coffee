@@ -112,6 +112,8 @@ class Rpc extends Multimix
 
   #---------------------------------------------------------------------------------------------------------
   stop: -> new Promise ( resolve, reject ) =>
+    @_socket.destroy() if @_socket?
+    # return resolve() if @_socketserver.
     @_socketserver.close ( error ) =>
       return reject error if error?
       resolve null
