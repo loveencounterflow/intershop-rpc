@@ -100,4 +100,15 @@ create function IPC.rpc( key text, value jsonb ) returns jsonb volatile language
 reset role;
 
 
+-- =========================================================================================================
+-- LOGGING
+-- ---------------------------------------------------------------------------------------------------------
+set role dba;
+drop function if exists log( value variadic text[] );
+reset role;
+create function log( value variadic text[] ) returns void language sql as $$
+  select IPC.send( '^log', to_jsonb( value ) ); $$
+
+
+
 
