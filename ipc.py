@@ -59,17 +59,17 @@ def server_is_online( ctx ):
   return True
 
 #-----------------------------------------------------------------------------------------------------------
-def rpc( ctx, method, parameters, format = 'any' ):
+def rpc( ctx, method, value, format = 'any' ):
   if format not in [ 'any', 'json' ]:
     raise KeyError( "^ipc.py/rpc@7771^ expected 'any' or 'json' for format, got " + repr( format ) )
-  _write_line( ctx, _JSON.dumps( { '$key': method, '$value': parameters, '$rsvp': True, } ) )
+  _write_line( ctx, _JSON.dumps( { '$key': method, '$value': value, '$rsvp': True, } ) )
   rsp       = _JSON.loads( _read_line( ctx ) )
   # ctx.log( '^777776^', repr( rsp ) )
   command   = rsp[ '$method' ]
   R         = rsp[ '$value' ]
   if command == 'error':
     ctx.log( '^ipc.py/rpc@7776^', "when doing an RPC call to " + repr( method ) )
-    ctx.log( '^ipc.py/rpc@7776^', "with parameters " + repr( parameters ) )
+    ctx.log( '^ipc.py/rpc@7776^', "with value " + repr( value ) )
     ctx.log( '^ipc.py/rpc@7776^', "an error occurred: " )
     ctx.log( rsp[ '$value' ] )
     raise RuntimeError( rsp[ '$value' ] )
