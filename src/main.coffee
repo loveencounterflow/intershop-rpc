@@ -60,10 +60,12 @@ class Rpc extends Multimix
   constructor: ( settings ) ->
     super()
     ### TAINT validate.intershop_rpc_settings settings ###
-    @settings       = freeze { _defaults..., settings..., }
-    @_xemitter      = DATOM.new_xemitter()
-    @counts         = { requests: 0, rpcs: 0, hits: 0, fails: 0, errors: 0, }
-    @_socketserver  = @_create_socketserver()
+    @settings         = { _defaults..., settings..., }
+    @settings.address = "#{@settings.host}:#{@settings.port}"
+    @settings         = freeze @settings
+    @_xemitter        = DATOM.new_xemitter()
+    @counts           = { requests: 0, rpcs: 0, hits: 0, fails: 0, errors: 0, }
+    @_socketserver    = @_create_socketserver()
     #.......................................................................................................
     @_socket_listen_on_all() if @settings.socket_log_all
     @_server_listen_on_all() if @settings.socketserver_log_all
