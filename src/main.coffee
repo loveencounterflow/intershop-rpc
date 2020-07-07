@@ -131,49 +131,47 @@ class Rpc extends Multimix
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _$dispatch: ->
-    return $ ( line, send ) =>
-      return null if line is ''
-      event       = null
-      method      = null
-      parameters  = null
-      $rsvp       = false
-      #.......................................................................................................
-      loop
-        ### TAINt first parse format to be prepended, as in e.g. `json:{}` ###
-        try event = JSON.parse line catch error
-          @send_error """^rpc-secondary/$dispatch@1357^
-            An error occurred while trying to parse #{rpr line}:
-            #{error.message}"""
-          break
-        #.....................................................................................................
-        switch type = type_of event
-          when 'object'
-            method_name = event.$key
-            parameters  = event.$value
-            $rsvp       = event.$rsvp ? false
-          else
-            @send_error "^rpc-secondary/$dispatch@1359^ expected object, got a #{type}: #{rpr event}"
-            break
-        #.....................................................................................................
-        switch method_name
-          when 'error'
-            @send_error parameters
-          #...................................................................................................
-          when 'stop'
-            ### TAINT really exit process? ###
-            process.exit()
-          #...................................................................................................
-          else
-            if $rsvp is true
-              ### TAINT `@do_rpc() is async ###
-              @do_rpc method_name, parameters
-        #.....................................................................................................
+  _$dispatch: -> $ ( line, send ) =>
+    return null if line is ''
+    event       = null
+    method      = null
+    parameters  = null
+    $rsvp       = false
+    #.......................................................................................................
+    loop
+      ### TAINt first parse format to be prepended, as in e.g. `json:{}` ###
+      try event = JSON.parse line catch error
+        @send_error """^rpc-secondary/$dispatch@1357^
+          An error occurred while trying to parse #{rpr line}:
+          #{error.message}"""
         break
-      #.......................................................................................................
-      ### TAINT sending on failed lines w/out marking them as such? ###
-      send event ? line
-      return null
+      #.....................................................................................................
+      switch type = type_of event
+        when 'object'
+          method_name = event.$key
+          parameters  = event.$value
+          $rsvp       = event.$rsvp ? false
+        else
+          @send_error "^rpc-secondary/$dispatch@1359^ expected object, got a #{type}: #{rpr event}"
+          break
+      #.....................................................................................................
+      switch method_name
+        when 'error'
+          @send_error parameters
+        #...................................................................................................
+        when 'stop'
+          ### TAINT really exit process? ###
+          process.exit()
+        #...................................................................................................
+        else
+          if $rsvp is true then @do_rpc method_name, parameters
+          else                  @emit   method_name, parameters
+      #.....................................................................................................
+      break
+    #.......................................................................................................
+    ### TAINT sending on failed lines w/out marking them as such? ###
+    send event ? line
+    return null
 
   #---------------------------------------------------------------------------------------------------------
   do_rpc: ( method_name, parameters ) ->
