@@ -86,14 +86,14 @@ class Rpc extends Multimix
     socket.on 'error',  ( error ) => warn "socket error: #{error.message}"
     source            = SP.new_push_source()
     pipeline          = []
-    #.....................................................................................................
+    #.......................................................................................................
     pipeline.push source
-    # pipeline.push $watch ( d ) => urge '^3398^', rpr d.toString()
+    # pipeline.push $watch ( d ) => debug '^3398^', rpr d.toString()
     pipeline.push SP.$split()
     pipeline.push @_$show_counts()
     pipeline.push @_$dispatch()
     pipeline.push $drain()
-    #.....................................................................................................
+    #.......................................................................................................
     SP.pull pipeline...
     return null
 
