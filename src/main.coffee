@@ -31,7 +31,7 @@ DATOM                     = require 'datom'
   freeze
   select }                = DATOM.export()
 #...........................................................................................................
-@types                    = require './types'
+@types                    = new ( require 'intertype' ).Intertype()
 { isa
   validate
   cast
@@ -47,6 +47,23 @@ _defaults                 = freeze
   count_interval:           1000
   socket_log_all:           false
   socketserver_log_all:     false
+  logging:                  true
+
+
+#===========================================================================================================
+#
+#-----------------------------------------------------------------------------------------------------------
+@types.declare 'intershop_rpc_settings',
+  tests:
+    "x is a object":                          ( x ) -> @isa.object x
+    "x.host is a nonempty_text":              ( x ) -> @isa.nonempty_text x.host
+    "x.port is a count":                      ( x ) -> @isa.count x.port
+    "x.show_counts is a boolean":             ( x ) -> @isa.boolean x.show_counts
+    "x.count_interval is a positive_integer": ( x ) -> @isa.positive_integer x.count_interval
+    "x.socket_log_all is a boolean":          ( x ) -> @isa.boolean x.socket_log_all
+    "x.socketserver_log_all is a boolean":    ( x ) -> @isa.boolean x.socketserver_log_all
+    "x.logging is a boolean or a function":   ( x ) -> ( @isa.boolean x.logging ) or ( @isa.function x.logging )
+
 
 #===========================================================================================================
 #
@@ -59,8 +76,8 @@ class Rpc extends Multimix
   #---------------------------------------------------------------------------------------------------------
   constructor: ( settings ) ->
     super()
-    ### TAINT validate.intershop_rpc_settings settings ###
     @settings         = { _defaults..., settings..., }
+    validate.intershop_rpc_settings @settings
     @settings.address = "#{@settings.host}:#{@settings.port}"
     @settings         = freeze @settings
     @_xemitter        = DATOM.new_xemitter()
@@ -70,6 +87,9 @@ class Rpc extends Multimix
     @_socket_listen_on_all() if @settings.socket_log_all
     @_server_listen_on_all() if @settings.socketserver_log_all
     #.......................................................................................................
+    if @settings.logging isnt false
+      method = if @settings.logging is true then @_log else @settings.logging
+      @listen_to '^log', method
     return @
 
   #---------------------------------------------------------------------------------------------------------
@@ -119,6 +139,9 @@ class Rpc extends Multimix
       resolve null
     #.......................................................................................................
     return null
+
+  #---------------------------------------------------------------------------------------------------------
+  _log: ( d ) => echo ( CND.grey @settings.address + ' RPC:' ), ( CND.blue d.$value ? d )
 
 
   #=========================================================================================================
