@@ -141,7 +141,10 @@ class Rpc extends Multimix
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  _log: ( d ) => echo ( CND.grey @settings.address + ' RPC:' ), ( CND.blue d.$value ? d )
+  _log: ( d ) =>
+    if isa.list ( value = d.$value ? d )
+      value = ( ( if isa.text x then x else rpr x ) for x in value ).join ' '
+    echo ( CND.grey @settings.address + ' RPC:' ), ( CND.yellow value )
 
 
   #=========================================================================================================
