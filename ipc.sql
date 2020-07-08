@@ -75,6 +75,14 @@ subject to change at any time; also observe that there''s a race condition betwe
 being online, testing for the server having a given method, and actually calling that method, an RPC call
 may still fail even if this method indicates it should succeed.';
 
+-- ---------------------------------------------------------------------------------------------------------
+create function IPC.get_server_address() returns text volatile language plpython3u as $$
+  plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
+  return ctx.intershop_rpc_host + ':' + ctx.intershop_rpc_port
+  $$;
+
+comment on function IPC.get_server_address() is 'Get configured adress of the IPC server address.';
+
 reset role;
 
 
