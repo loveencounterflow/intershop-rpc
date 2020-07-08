@@ -29,10 +29,10 @@ def _prepare( ctx ):
   settings[ 'port' ]    = int( ctx.intershop_rpc_port )
   settings[ 'address' ] = "{}:{}".format( settings[ 'host' ], settings[ 'port' ] )
   try:
-    ctx.log( "^intershop-rpc/_prepare@45598^ Trying to connect to: {}".format( settings[ 'address' ] ) )
+    # ctx.log( "^intershop-rpc/_prepare@45598^ Trying to connect to: {}".format( settings[ 'address' ] ) )
     client_socket.connect( ( settings[ 'host' ], settings[ 'port' ], ) )
   except Exception as e:
-    ctx.log( "^intershop-rpc/_prepare@45598^ Error: {}".format( e ) )
+    # ctx.log( "^intershop-rpc/_prepare@45598^ Error: {}".format( e ) )
     raise e
   client_socket_rfile                     = _OS.fdopen( client_socket.fileno(), 'r', encoding = 'utf-8' )
   _cache[ 'SIGNALS.client_socket'       ] = client_socket
@@ -68,10 +68,10 @@ def rpc( ctx, method, value, format = 'any' ):
   command   = rsp[ '$method' ]
   R         = rsp[ '$value' ]
   if command == 'error':
-    ctx.log( '^ipc.py/rpc@7776^', "when doing an RPC call to " + repr( method ) )
-    ctx.log( '^ipc.py/rpc@7776^', "with value " + repr( value ) )
-    ctx.log( '^ipc.py/rpc@7776^', "an error occurred: " )
-    ctx.log( rsp[ '$value' ] )
+    # ctx.log( '^ipc.py/rpc@7776^', "when doing an RPC call to " + repr( method ) )
+    # ctx.log( '^ipc.py/rpc@7776^', "with value " + repr( value ) )
+    # ctx.log( '^ipc.py/rpc@7776^', "an error occurred: " )
+    # ctx.log( rsp[ '$value' ] )
     raise RuntimeError( rsp[ '$value' ] )
   return _JSON.dumps( R ) if format == 'json' else R
 
