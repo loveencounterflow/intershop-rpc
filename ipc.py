@@ -37,6 +37,12 @@ def _prepare( ctx ):
   client_socket_rfile                     = _OS.fdopen( client_socket.fileno(), 'r', encoding = 'utf-8' )
   _cache[ 'SIGNALS.client_socket'       ] = client_socket
   _cache[ 'SIGNALS.client_socket_rfile' ] = client_socket_rfile
+  #.........................................................................................................
+  def log( *messages ):
+    _write_line( ctx, _JSON.dumps( { '$key': '^log', '$value': messages, } ) )
+  #.........................................................................................................
+  ctx.log = log
+  ctx.log( "^2877^ added `ctx.log()`" )
 
 #-----------------------------------------------------------------------------------------------------------
 def _write_line( ctx, line ):
@@ -74,6 +80,7 @@ def rpc( ctx, method, value, format = 'any' ):
     # ctx.log( rsp[ '$value' ] )
     raise RuntimeError( rsp[ '$value' ] )
   return _JSON.dumps( R ) if format == 'json' else R
+
 
 
 
