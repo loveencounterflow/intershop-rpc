@@ -50,9 +50,9 @@ create function IPC.server_is_online() returns boolean volatile language plpytho
   # for path in sys.path:
   #   ctx.log( '^22333^', "path:", path )
   # # import ipc
-  # # ctx.addons[ 'intershop-rpc' ] = ipc
-  # # return ctx.addons[ 'intershop-rpc' ].server_is_online()
-  return ctx.addons[ 'intershop-rpc' ].server_is_online( ctx )
+  # # ctx.addons[ 'intershop-rpc/ipc.py' ] = ipc
+  # # return ctx.addons[ 'intershop-rpc/ipc.py' ].server_is_online()
+  return ctx.addons[ 'intershop-rpc/ipc.py' ].server_is_online( ctx )
   $$;
 
 comment on function IPC.server_is_online() is 'Return `true` iff RPC server is reachable, `false`
@@ -61,9 +61,9 @@ otherwise.';
 -- ---------------------------------------------------------------------------------------------------------
 create function IPC.has_rpc_method( key text ) returns boolean volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
-  if not ctx.addons[ 'intershop-rpc' ].server_is_online( ctx ): return None
+  if not ctx.addons[ 'intershop-rpc/ipc.py' ].server_is_online( ctx ): return None
   try:
-    return ctx.addons[ 'intershop-rpc' ].rpc( ctx, 'has_rpc_method', key )
+    return ctx.addons[ 'intershop-rpc/ipc.py' ].rpc( ctx, 'has_rpc_method', key )
   except ConnectionRefusedError as e:
     return False
   $$;
@@ -91,7 +91,7 @@ set role dba;
 create function IPC.send( key text, value jsonb ) returns void volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
   import json
-  ctx.addons[ 'intershop-rpc' ]._write_line( ctx, json.dumps( { '$key': key, '$value': json.loads( value ), } ) )
+  ctx.addons[ 'intershop-rpc/ipc.py' ]._write_line( ctx, json.dumps( { '$key': key, '$value': json.loads( value ), } ) )
   $$;
 reset role;
 
@@ -103,7 +103,7 @@ set role dba;
 create function IPC.rpc( key text, value jsonb ) returns jsonb volatile language plpython3u as $$
   plpy.execute( 'select U.py_init()' ); ctx = GD[ 'ctx' ]
   import json
-  return ctx.addons[ 'intershop-rpc' ].rpc( ctx, key, json.loads( value ), format = 'json' )
+  return ctx.addons[ 'intershop-rpc/ipc.py' ].rpc( ctx, key, json.loads( value ), format = 'json' )
   $$;
 reset role;
 
