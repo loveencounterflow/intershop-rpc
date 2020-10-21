@@ -125,7 +125,7 @@ class Rpc extends Multimix
       { address: host, port, family, } = @_socketserver.address()
       ### TAINT do in constructor? or add to settings? ###
       app_name = process.env[ 'intershop_db_name' ] ? 'intershop'
-      help "RPC server for #{app_name} listening on #{family} #{host}:#{port}"
+      help "^intershop-rpc/main/start@398^ RPC server for #{app_name} listening on #{family} #{host}:#{port}"
       resolve null
     #.......................................................................................................
     return null
@@ -136,6 +136,7 @@ class Rpc extends Multimix
     # return resolve() if @_socketserver.
     @_socketserver.close ( error ) =>
       return reject error if error?
+      help "^intershop-rpc/main/start@397^ RPC server stopped"
       resolve null
     #.......................................................................................................
     return null
